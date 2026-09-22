@@ -31,7 +31,7 @@ export default function Sidebar() {
     <>
       {/* HAMBURGER (mobile topbar button) */}
       <button
-        className="hamburger"
+        className={`hamburger ${open ? 'hidden' : ''}`}
         onClick={() => setOpen(true)}
         aria-label="Buka menu"
       >

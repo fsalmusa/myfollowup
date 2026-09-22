@@ -670,6 +670,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   background: var(--text);
   border-radius: 2px;
 }
+.hamburger.hidden { display: none; }
 .sidebar-overlay {
   display: none;
   position: fixed;

@@ -131,7 +131,10 @@ export const api = {
     if (search) q = q.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     const { data, error } = await q;
     throwIf(error);
-    return (data || []).map(pass);
+    const rows = data || [];
+    // enrich each group with customer stats (total / completed / pending / status / color)
+    const shaped = await Promise.all(rows.map((g) => shapeGroup(g.id)));
+    return shaped.filter(Boolean);
   },
 
   async getGroup(id) {

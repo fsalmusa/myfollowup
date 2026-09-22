@@ -693,36 +693,6 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 }
 .sidebar-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* Bottom navigation bar */
-.bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 55;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 16px rgba(16, 24, 40, 0.08);
-}
-.bn-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 4px 7px;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.bn-item .icon { font-size: 20px; }
-.bn-item.active { color: var(--primary); }
-
 /* Customer cards (mobile) */
 .customer-cards { display: none; }
 .cc-card {
@@ -793,11 +763,8 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   /* Main tak perlu margin kiri lagi */
   .main { margin-left: 0; }
 
-  /* Bottom nav muncul */
-  .bottom-nav { display: flex; }
-
   /* Content + topbar adjust */
-  .content { padding: 16px 14px 96px; }
+  .content { padding: 16px 14px 24px; }
   .topbar { padding: 14px 14px 14px 64px; }
   .topbar h1 { font-size: 18px; }
 
@@ -829,7 +796,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   /* Select dalam toolbar jadi full width pada mobile */
   .toolbar select.form-control { width: 100% !important; }
 
-  .toast-stack { left: 14px; right: 14px; bottom: 78px; }
+  .toast-stack { left: 14px; right: 14px; bottom: 18px; }
   .toast { max-width: none; }
 }
 

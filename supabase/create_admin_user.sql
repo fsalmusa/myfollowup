@@ -14,8 +14,8 @@ create extension if not exists pgcrypto;
 --   - Password must be at least 6 characters.
 do $$
 declare
-  admin_email text := 'adminfsalmusa@myfollowup.com';
-  admin_password text := 'test123';
+  admin_email text := 'fsal.empire@gmail.com';
+  admin_password text := 'Ay@m123';
   new_user_id uuid;
 begin
   -- Check if user already exists

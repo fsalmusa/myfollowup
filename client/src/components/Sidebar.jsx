@@ -75,21 +75,6 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
-
-      {/* BOTTOM NAV (mobile) */}
-      <nav className="bottom-nav">
-        {NAV.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className={({ isActive }) => `bn-item ${isActive ? 'active' : ''}`}
-          >
-            <span className="icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
-      </nav>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../auth.jsx';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: '📊', end: true },
@@ -13,6 +14,7 @@ const NAV = [
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   // Tutup drawer setiap kali route berubah
   useEffect(() => {
@@ -64,6 +66,14 @@ export default function Sidebar() {
         ))}
 
         <div className="foot">v1.0.0 · Pengurusan Follow-Up</div>
+
+        {/* LOGOUT */}
+        <div className="sidebar-user">
+          <div className="sidebar-user-email">{user?.email || 'Admin'}</div>
+          <button className="btn btn-outline logout-btn" onClick={signOut}>
+            Log Keluar
+          </button>
+        </div>
       </aside>
 
       {/* BOTTOM NAV (mobile) */}

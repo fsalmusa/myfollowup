@@ -9,3 +9,7 @@ server/*.db-shm
 .env.*.local
 .DS_Store
 *.log
+
+# Build artifacts (CI builds these from client/)
+/index.html
+/assets/

@@ -113,12 +113,12 @@ export const api = {
       supabase.from('groups').select('*', { count: 'exact', head: true }),
       supabase.from('customers').select('*', { count: 'exact', head: true }),
     ]);
-    const { data: followed, error: e1 } = await supabase
+    const { count: followed_count, error: e1 } = await supabase
       .from('customers')
       .select('id', { count: 'exact', head: true })
       .eq('follow_up_status', 'COMPLETED');
     throwIf(e1);
-    const followed_up = followed?.count ?? 0;
+    const followed_up = followed_count ?? 0;
     const not_followed_up = (total_customers ?? 0) - followed_up;
     return { total_groups: total_groups ?? 0, total_customers: total_customers ?? 0, followed_up, not_followed_up };
   },

@@ -11,6 +11,94 @@ import { supabase } from './supabaseClient.js';
 /** Normalise a Supabase row -> keep snake_case fields as-is. */
 const pass = (r) => r;
 
+// --------------------------------------------------------------------- //
+// Customer enrichment (mirrors server/utils/helpers.js enrichCustomer)   //
+// --------------------------------------------------------------------- //
+
+function normalizeMyPhone(raw) {
+  if (raw === null || raw === undefined) return '';
+  let s = String(raw).replace(/\D/g, '');
+  if (!s) return '';
+  if (s.startsWith('60')) s = s.slice(2);
+  else if (s.startsWith('0')) s = s.slice(1);
+  if (s.length < 7) return s;
+  return '60' + s;
+}
+
+function formatMyPhoneDisplay(raw) {
+  const digits = String(raw || '').replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('60') && digits.length >= 10) {
+    const local = digits.slice(2);
+    return `0${local.slice(0, 2)}-${local.slice(2, 5)} ${local.slice(5)}`;
+  }
+  if (digits.startsWith('0')) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)} ${digits.slice(6)}`;
+  }
+  return raw;
+}
+
+function whatsappLink(rawPhone, text = '') {
+  const n = normalizeMyPhone(rawPhone);
+  if (!n || n.length < 9) return '';
+  const base = `https://wa.me/${n}`;
+  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+}
+
+function isoToDisplay(iso) {
+  if (!iso) return '';
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+function parseDate(iso) {
+  if (!iso) return null;
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+
+function todayISO() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function subscriptionStatus(expiryISO) {
+  const exp = parseDate(expiryISO);
+  if (!exp) return 'ACTIVE';
+  const today = parseDate(todayISO());
+  const DAY = 24 * 60 * 60 * 1000;
+  const diffDays = Math.round((exp - today) / DAY);
+  if (diffDays < 0) return 'EXPIRED';
+  if (diffDays <= 7) return 'EXPIRING_SOON';
+  return 'ACTIVE';
+}
+
+const SUBSCRIPTION_LABELS = {
+  ACTIVE: 'Masih Aktif',
+  EXPIRING_SOON: 'Akan Expired',
+  EXPIRED: 'Expired',
+};
+
+/** Add display fields the frontend depends on. */
+function enrich(row) {
+  if (!row) return row;
+  const sub = subscriptionStatus(row.expiry_date);
+  return {
+    ...row,
+    subscription_status: sub,
+    subscription_label: SUBSCRIPTION_LABELS[sub],
+    phone_display: formatMyPhoneDisplay(row.phone),
+    whatsapp_link: whatsappLink(row.phone),
+    subscribe_date_display: isoToDisplay(row.subscribe_date),
+    expiry_date_display: isoToDisplay(row.expiry_date),
+  };
+}
+
+const enrichAll = (rows) => (rows || []).map(enrich);
+
 /** Turn a Supabase error into a thrown Error with a friendly message. */
 function throwIf(error) {
   if (error) throw new Error(error.message || 'Ralat: permintaan gagal.');
@@ -86,7 +174,7 @@ export const api = {
     const { data, error } = await q;
     throwIf(error);
     // flatten group_name + sort pending-first
-    const rows = (data || []).map((c) => ({ ...c, group_name: c.groups?.name || '' }));
+    const rows = (data || []).map((c) => enrich({ ...c, group_name: c.groups?.name || '' }));
     rows.sort((a, b) =>
       a.follow_up_status === b.follow_up_status
         ? a.name.localeCompare(b.name, 'ms')
@@ -111,7 +199,7 @@ export const api = {
     const { data, error, count } = await q;
     throwIf(error);
 
-    let rows = (data || []).map((c) => ({ ...c, group_name: c.groups?.name || '' }));
+    let rows = (data || []).map((c) => enrich({ ...c, group_name: c.groups?.name || '' }));
 
     // subscription_status is derived client-side (mirrors old logic)
     if (subscription_status === 'ACTIVE' || subscription_status === 'EXPIRING_SOON' || subscription_status === 'EXPIRED') {
@@ -156,7 +244,7 @@ export const api = {
       .order('created_at', { ascending: false })
       .order('id', { ascending: false });
     throwIf(e2);
-    return { ...data, group_name: data.groups?.name || '', history: history || [] };
+    return enrich({ ...data, group_name: data.groups?.name || '', history: history || [] });
   },
 
   async createCustomer(payload) {
@@ -174,7 +262,7 @@ export const api = {
       .select('*, groups!inner(name)')
       .single();
     throwIf(error);
-    return { ...data, group_name: data.groups?.name || '' };
+    return enrich({ ...data, group_name: data.groups?.name || '' });
   },
 
   async updateCustomer(id, payload) {
@@ -189,7 +277,7 @@ export const api = {
 
     const { data, error } = await supabase.from('customers').update(patch).eq('id', id).select('*, groups!inner(name)').single();
     throwIf(error);
-    return { ...data, group_name: data.groups?.name || '' };
+    return enrich({ ...data, group_name: data.groups?.name || '' });
   },
 
   async deleteCustomer(id) {
@@ -230,7 +318,7 @@ export const api = {
 
     // Recompute group stats (mirrors the old shapeGroup).
     const group = await shapeGroup(customer.group_id);
-    return { customer: { ...customer, group_name: customer.groups?.name || '' }, group };
+    return { customer: enrich({ ...customer, group_name: customer.groups?.name || '' }), group };
   },
 
   async getHistory(id) {
@@ -297,28 +385,7 @@ export const api = {
   },
 };
 
-// --- subscription status (mirrors server/utils/helpers.js) ---
-function parseDate(iso) {
-  if (!iso) return null;
-  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-}
-function todayISO() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-function subscriptionStatus(expiryISO) {
-  const exp = parseDate(expiryISO);
-  if (!exp) return 'ACTIVE';
-  const today = parseDate(todayISO());
-  const DAY = 24 * 60 * 60 * 1000;
-  const diffDays = Math.round((exp - today) / DAY);
-  if (diffDays < 0) return 'EXPIRED';
-  if (diffDays <= 7) return 'EXPIRING_SOON';
-  return 'ACTIVE';
-}
+// --- subscription status helpers now defined at top of file ---
 
 // --- group stats (mirrors server/db.js shapeGroup + deriveGroupStatus) ---
 async function groupStats(groupId) {

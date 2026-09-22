@@ -1,0 +1,19 @@
+{
+  "name": "followup-crm",
+  "version": "1.0.0",
+  "description": "Sistem Pengurusan Follow-Up Pelanggan (Customer Follow-Up Management System)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix client install",
+    "seed": "node server/seed.js",
+    "dev:server": "node server/index.js",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "start": "node server/index.js",
+    "test": "node tests/api.test.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

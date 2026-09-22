@@ -5,5 +5,7 @@ server/*.db-journal
 server/*.db-wal
 server/*.db-shm
 .env
+.env.local
+.env.*.local
 .DS_Store
 *.log

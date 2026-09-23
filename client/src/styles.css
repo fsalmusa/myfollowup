@@ -179,6 +179,57 @@ p { margin: 0; }
 .btn-outline { background: #fff; color: var(--text); border-color: var(--border); }
 .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
 
+.btn-renew { background: var(--orange); color: #fff; }
+.btn-renew:hover { background: #d97706; }
+
+/* ===================== RENEW MODAL ===================== */
+.renew-current {
+  background: var(--surface-muted, #f8fafc);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+.renew-durations {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.renew-dur-btn {
+  padding: 10px 6px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text);
+  font-family: inherit;
+}
+.renew-dur-btn:hover { border-color: var(--orange); color: var(--orange); }
+.renew-dur-btn.active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+}
+.renew-preview {
+  margin-top: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.renew-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+.renew-new { color: var(--green); font-size: 15px; }
+
 .btn-ghost { background: transparent; color: var(--text-muted); }
 .btn-ghost:hover { background: #f1f5f9; color: var(--text); }
 
@@ -215,30 +266,96 @@ p { margin: 0; }
 }
 
 .stat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  min-height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  color: #fff;
+}
+
+/* Gradient warna-warni (AdminLTE style) */
+.stat-blue   { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #60a5fa 100%); }
+.stat-green  { background: linear-gradient(135deg, #16a34a 0%, #22c55e 55%, #4ade80 100%); }
+.stat-red    { background: linear-gradient(135deg, #dc2626 0%, #ef4444 55%, #f87171 100%); }
+.stat-purple { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 55%, #a78bfa 100%); }
+.stat-orange { background: linear-gradient(135deg, #ea580c 0%, #f97316 55%, #fb923c 100%); }
+.stat-teal   { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 55%, #2dd4bf 100%); }
+
+.stat-card .stat-body { display: flex; flex-direction: column; gap: 4px; position: relative; z-index: 1; }
+
+.stat-card .stat-value {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+
+.stat-card .stat-label {
+  color: rgba(255,255,255,.88);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Ghost icon besar di tepi kanan */
+.stat-card .stat-ghost {
+  position: absolute;
+  right: -10px;
+  bottom: -14px;
+  font-size: 76px;
+  line-height: 1;
+  opacity: .22;
+  transform: rotate(-8deg);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ===================== SUBSCRIPTION STATUS ===================== */
+.sub-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.sub-status-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 20px;
+  padding: 16px 8px;
   box-shadow: var(--shadow-sm);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
 }
-
-.stat-card .stat-icon {
-  width: 46px; height: 46px;
+.sub-status-icon {
+  width: 42px; height: 42px;
   border-radius: 12px;
   display: grid; place-items: center;
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
 }
-.stat-icon.blue   { background: #dbeafe; }
-.stat-icon.green  { background: #dcfce7; }
-.stat-icon.red    { background: #fee2e2; }
-.stat-icon.purple { background: #ede9fe; }
-
-.stat-card .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
-.stat-card .stat-label { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+.sub-status-icon.active  { background: #dcfce7; }
+.sub-status-icon.soon    { background: #fef3c7; }
+.sub-status-icon.expired { background: #fee2e2; }
+.sub-status-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+.sub-status-label {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.25;
+}
 
 /* ===================== GROUP CARDS ===================== */
 .section-head {
@@ -784,9 +901,9 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
 @media (max-width: 560px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .stat-card { padding: 14px; gap: 11px; }
-  .stat-card .stat-value { font-size: 22px; }
-  .stat-card .stat-icon { width: 40px; height: 40px; font-size: 19px; }
+  .stat-card { padding: 16px; min-height: 92px; }
+  .stat-card .stat-value { font-size: 26px; }
+  .stat-card .stat-ghost { font-size: 56px; }
 
   .group-grid { grid-template-columns: 1fr; }
   .toolbar { flex-direction: column; align-items: stretch; }

@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import CustomerDetailPanel from '../components/CustomerDetailPanel.jsx';
 import Pagination from '../components/Pagination.jsx';
+import { RenewModal } from '../components/RenewButton.jsx';
 import { useToast } from '../components/Toast.jsx';
 
 const FOLLOWUP_FILTERS = [
@@ -55,6 +56,7 @@ export default function CustomerList() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [viewCustomer, setViewCustomer] = useState(null);
+  const [renewTarget, setRenewTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -152,6 +154,14 @@ export default function CustomerList() {
     }
   };
 
+  const handleRenewed = (updated) => {
+    if (updated) {
+      setData((list) => list.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)));
+    }
+    // If filtered by subscription status, refresh to keep list accurate.
+    if (subFilter) load();
+  };
+
   return (
     <div>
       <div className="topbar">
@@ -208,6 +218,7 @@ export default function CustomerList() {
               onView={setViewCustomer}
               onEdit={openEdit}
               onDelete={setDeleteTarget}
+              onRenew={setRenewTarget}
             />
             <Pagination page={page} totalPages={totalPages} total={total} onPage={setPage} />
           </>
@@ -227,6 +238,12 @@ export default function CustomerList() {
       )}
 
       <CustomerDetailPanel customer={viewCustomer} onToggle={handleToggle} onClose={() => setViewCustomer(null)} />
+
+      <RenewModal
+        customer={renewTarget}
+        onClose={() => setRenewTarget(null)}
+        onRenewed={handleRenewed}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}

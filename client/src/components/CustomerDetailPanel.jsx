@@ -3,6 +3,7 @@ import Modal from './Modal.jsx';
 import { FollowUpBadge } from './StatusBadge.jsx';
 import WhatsAppButton from './WhatsAppButton.jsx';
 import FollowUpButton from './FollowUpButton.jsx';
+import RenewButton from './RenewButton.jsx';
 import FollowUpHistory from './FollowUpHistory.jsx';
 import { isoToDisplay, formatDateTime } from '../lib/format.js';
 
@@ -41,11 +42,12 @@ export default function CustomerDetailPanel({ customer, onToggle, onClose }) {
         <FollowUpBadge status={customer.follow_up_status} />
       </div>
 
-      <div style={{ display: 'flex', gap: 10, marginBottom: 22 }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
         <button className="btn btn-whatsapp" onClick={() => window.open(customer.whatsapp_link, '_blank')}>
           💬 WhatsApp
         </button>
         <FollowUpButton customer={customer} onToggle={onToggle} />
+        <RenewButton customer={customer} onRenewed={onToggle} />
       </div>
 
       <h4 style={{ marginBottom: 12, fontSize: 15 }}>📜 Sejarah Follow Up</h4>

@@ -67,10 +67,22 @@ export default function Reports() {
         {/* Subscription breakdown */}
         <div className="card" style={{ padding: 20, marginBottom: 20 }}>
           <h3 style={{ fontSize: 15, marginBottom: 14 }}>Status Langganan</h3>
-          <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: 0 }}>
-            <div className="stat-card"><div className="stat-icon green">🟢</div><div><div className="stat-value">{subs.ACTIVE}</div><div className="stat-label">Masih Aktif</div></div></div>
-            <div className="stat-card"><div className="stat-icon" style={{ background: '#fef3c7' }}>🟠</div><div><div className="stat-value">{subs.EXPIRING_SOON}</div><div className="stat-label">Akan Expired</div></div></div>
-            <div className="stat-card"><div className="stat-icon red">🔴</div><div><div className="stat-value">{subs.EXPIRED}</div><div className="stat-label">Expired</div></div></div>
+          <div className="sub-status-grid">
+            <div className="sub-status-card">
+              <div className="sub-status-icon active">🟢</div>
+              <div className="sub-status-value">{subs.ACTIVE}</div>
+              <div className="sub-status-label">Masih Aktif</div>
+            </div>
+            <div className="sub-status-card">
+              <div className="sub-status-icon soon">🟠</div>
+              <div className="sub-status-value">{subs.EXPIRING_SOON}</div>
+              <div className="sub-status-label">Akan Expired</div>
+            </div>
+            <div className="sub-status-card">
+              <div className="sub-status-icon expired">🔴</div>
+              <div className="sub-status-value">{subs.EXPIRED}</div>
+              <div className="sub-status-label">Expired</div>
+            </div>
           </div>
         </div>
 

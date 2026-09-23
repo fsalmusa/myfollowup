@@ -289,6 +289,20 @@ export const api = {
     return { deleted: true };
   },
 
+  async renewCustomer(id, { new_expiry_date, new_subscribe_date }) {
+    const patch = {};
+    if (new_expiry_date) patch.expiry_date = new_expiry_date;
+    if (new_subscribe_date) patch.subscribe_date = new_subscribe_date;
+    const { data, error } = await supabase
+      .from('customers')
+      .update(patch)
+      .eq('id', id)
+      .select('*, groups!inner(name)')
+      .single();
+    throwIf(error);
+    return enrich({ ...data, group_name: data.groups?.name || '' });
+  },
+
   async toggleFollowUp(id, status, note) {
     // determine target
     const { data: existing, error: e0 } = await supabase.from('customers').select('follow_up_status').eq('id', id).single();

@@ -2,6 +2,7 @@ import React from 'react';
 import { SubscriptionBadge } from './StatusBadge.jsx';
 import WhatsAppButton from './WhatsAppButton.jsx';
 import FollowUpButton from './FollowUpButton.jsx';
+import RenewButton from './RenewButton.jsx';
 import Dropdown from './Dropdown.jsx';
 
 function SortableTh({ label, sortKey, activeKey, dir, onSort }) {
@@ -24,6 +25,7 @@ function CustomerCards({
   onView,
   onEdit,
   onDelete,
+  onRenew,
 }) {
   return (
     <div className="customer-cards">
@@ -68,10 +70,11 @@ function CustomerCards({
           <div className="cc-actions">
             <FollowUpButton customer={c} onToggle={(status) => onToggleFollowUp(c, status)} />
             <WhatsAppButton phone={c.phone} name={c.name} />
+            <button className="btn-icon" title="Edit Customer" onClick={() => onEdit(c)}>✏️</button>
+            <RenewButton customer={c} onRenewed={onRenew} />
             <Dropdown
               items={[
                 { icon: '👁️', label: 'Lihat Detail', onClick: () => onView(c) },
-                { icon: '✏️', label: 'Edit Customer', onClick: () => onEdit(c) },
                 { icon: '🗑️', label: 'Delete Customer', danger: true, onClick: () => onDelete(c) },
               ]}
             />
@@ -94,6 +97,7 @@ function CustomerTableDesktop({
   onView,
   onEdit,
   onDelete,
+  onRenew,
 }) {
   return (
     <div className="table-scroll">
@@ -141,6 +145,7 @@ function CustomerTableDesktop({
                 <Dropdown
                   items={[
                     { icon: '👁️', label: 'Lihat Detail', onClick: () => onView(c) },
+                    { icon: '🔄', label: 'Renew Langganan', onClick: () => onRenew(c) },
                     { icon: '✏️', label: 'Edit Customer', onClick: () => onEdit(c) },
                     { icon: '🗑️', label: 'Delete Customer', danger: true, onClick: () => onDelete(c) },
                   ]}

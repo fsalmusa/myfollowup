@@ -4,12 +4,14 @@ import { api } from '../api.js';
 import SearchBar from '../components/SearchBar.jsx';
 import FilterTabs from '../components/FilterTabs.jsx';
 import CustomerTable from '../components/CustomerTable.jsx';
+import StatsCard from '../components/StatsCard.jsx';
 import Modal from '../components/Modal.jsx';
 import CustomerForm from '../components/CustomerForm.jsx';
 import GroupForm from '../components/GroupForm.jsx';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import CustomerDetailPanel from '../components/CustomerDetailPanel.jsx';
+import { RenewModal } from '../components/RenewButton.jsx';
 import { useToast } from '../components/Toast.jsx';
 
 const FILTERS = [
@@ -42,6 +44,7 @@ export default function GroupDetail() {
   const [deleteCustomer, setDeleteCustomer] = useState(null);
   const [deletingCustomer, setDeletingCustomer] = useState(false);
   const [viewCustomer, setViewCustomer] = useState(null);
+  const [renewTarget, setRenewTarget] = useState(null);
 
   const loadGroup = useCallback(async () => {
     const g = await api.getGroup(id);
@@ -177,6 +180,12 @@ export default function GroupDetail() {
     }
   };
 
+  const handleRenewed = async (updated) => {
+    if (updated) {
+      setCustomers((list) => list.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)));
+    }
+  };
+
   // ---- Group edit ----
   const handleSubmitGroup = async (payload) => {
     setSubmittingGroup(true);
@@ -250,6 +259,7 @@ export default function GroupDetail() {
             onView={setViewCustomer}
             onEdit={openEditCustomer}
             onDelete={setDeleteCustomer}
+            onRenew={setRenewTarget}
           />
         )}
       </div>
@@ -287,6 +297,12 @@ export default function GroupDetail() {
         onClose={() => setViewCustomer(null)}
       />
 
+      <RenewModal
+        customer={renewTarget}
+        onClose={() => setRenewTarget(null)}
+        onRenewed={handleRenewed}
+      />
+
       <ConfirmDialog
         open={!!deleteCustomer}
         title="Delete Customer"
@@ -302,14 +318,5 @@ export default function GroupDetail() {
 
 // Small inline stat card to match the dashboard look.
 function StatsLike({ label, value, tone }) {
-  const iconMap = { blue: '👥', green: '✅', red: '⏳' };
-  return (
-    <div className="stat-card">
-      <div className={`stat-icon ${tone}`}>{iconMap[tone]}</div>
-      <div>
-        <div className="stat-value">{value}</div>
-        <div className="stat-label">{label}</div>
-      </div>
-    </div>
-  );
+  return <StatsCard label={label} value={value} tone={tone} />;
 }

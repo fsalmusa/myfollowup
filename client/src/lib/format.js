@@ -19,6 +19,39 @@ export function whatsappLink(rawPhone, text = '') {
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
+/**
+ * Detect contact type & return the right link.
+ *  - Number (0123..., 6012...) => WhatsApp wa.me link
+ *  - Username (@xxx / t.me/xxx / xxx) => Telegram t.me link
+ *  - ig:xxx or instagram.com/xxx => Instagram link
+ * Returns '' if nothing usable.
+ */
+export function contactLink(raw, text = '') {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  // Instagram explicit
+  if (/^ig:/i.test(s)) {
+    return `https://instagram.com/${s.replace(/^ig:/i, '').replace(/^@/, '')}`;
+  }
+  // Pure number (with optional + / spaces / dashes) => WhatsApp
+  if (/^[+]?[\d\s-]{7,}$/.test(s)) {
+    return whatsappLink(s, text);
+  }
+  // Telegram username
+  const u = s.replace(/^@/, '').replace(/^https?:\/\/t\.me\//, '').replace(/^t\.me\//, '');
+  if (u) return `https://t.me/${u}`;
+  return '';
+}
+
+/** Return a short label describing the contact platform. */
+export function contactType(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  if (/^ig:/i.test(s)) return 'Instagram';
+  if (/^[+]?[\d\s-]{7,}$/.test(s)) return 'WhatsApp';
+  return 'Telegram';
+}
+
 export function formatPhoneDisplay(raw) {
   const digits = String(raw || '').replace(/\D/g, '');
   if (!digits) return '';

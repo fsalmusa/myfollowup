@@ -222,10 +222,11 @@ export default function GroupDetail() {
       </div>
 
       <div className="content">
-        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
           <StatsLike label="Jumlah Customer" value={group.total_customers} tone="blue" />
           <StatsLike label="Dah Follow Up" value={group.completed} tone="green" />
           <StatsLike label="Belum Follow Up" value={group.pending} tone="red" />
+          <StatsLike label="Expired (Belum Follow Up)" value={group.expired_pending ?? 0} tone="orange" />
         </div>
 
         <div className="toolbar">

@@ -45,6 +45,28 @@ function whatsappLink(rawPhone, text = '') {
   return text ? `${base}?text=${encodeURIComponent(text)}` : base;
 }
 
+/** Detect contact link by platform (number => WA, @username => Telegram, ig: => Instagram). */
+function contactLink(raw, text = '') {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  if (/^ig:/i.test(s)) {
+    return `https://instagram.com/${s.replace(/^ig:/i, '').replace(/^@/, '')}`;
+  }
+  if (/^[+]?[\d\s-]{7,}$/.test(s)) {
+    return whatsappLink(s, text);
+  }
+  const u = s.replace(/^@/, '').replace(/^https?:\/\/t\.me\//, '').replace(/^t\.me\//, '');
+  return u ? `https://t.me/${u}` : '';
+}
+
+function contactType(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  if (/^ig:/i.test(s)) return 'Instagram';
+  if (/^[+]?[\d\s-]{7,}$/.test(s)) return 'WhatsApp';
+  return 'Telegram';
+}
+
 function isoToDisplay(iso) {
   if (!iso) return '';
   const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -91,7 +113,9 @@ function enrich(row) {
     subscription_status: sub,
     subscription_label: SUBSCRIPTION_LABELS[sub],
     phone_display: formatMyPhoneDisplay(row.phone),
-    whatsapp_link: whatsappLink(row.phone),
+    whatsapp_link: contactLink(row.phone),
+    contact_link: contactLink(row.phone),
+    contact_type: contactType(row.phone),
     subscribe_date_display: isoToDisplay(row.subscribe_date),
     expiry_date_display: isoToDisplay(row.expiry_date),
   };
@@ -416,10 +440,19 @@ async function groupStats(groupId) {
     .select('*', { count: 'exact', head: true })
     .eq('group_id', groupId)
     .eq('follow_up_status', 'COMPLETED');
+  // Expired + belum follow up: PENDING dan expiry_date sebelum hari ini
+  const today = todayISO();
+  const { count: expiredPending } = await supabase
+    .from('customers')
+    .select('*', { count: 'exact', head: true })
+    .eq('group_id', groupId)
+    .eq('follow_up_status', 'PENDING')
+    .lt('expiry_date', today);
   return {
     total_customers: total ?? 0,
     completed: completed ?? 0,
     pending: (total ?? 0) - (completed ?? 0),
+    expired_pending: expiredPending ?? 0,
   };
 }
 

@@ -19,6 +19,10 @@ function Item({ label, value }) {
 export default function CustomerDetailPanel({ customer, onToggle, onClose }) {
   if (!customer) return null;
 
+  const contactLabel = customer.contact_type === 'Telegram' ? 'Telegram' : customer.contact_type === 'Instagram' ? 'Instagram' : 'WhatsApp';
+  const contactIcon = customer.contact_type === 'Telegram' ? '✈️' : customer.contact_type === 'Instagram' ? '📸' : '💬';
+  const contactLink = customer.contact_link || customer.whatsapp_link;
+
   return (
     <Modal title="Detail Pelanggan" onClose={onClose} wide>
       <div className="detail-grid">
@@ -43,8 +47,12 @@ export default function CustomerDetailPanel({ customer, onToggle, onClose }) {
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 22, flexWrap: 'wrap' }}>
-        <button className="btn btn-whatsapp" onClick={() => window.open(customer.whatsapp_link, '_blank')}>
-          💬 WhatsApp
+        <button
+          className="btn btn-whatsapp"
+          disabled={!contactLink}
+          onClick={() => window.open(contactLink, '_blank')}
+        >
+          {contactIcon} {contactLabel}
         </button>
         <FollowUpButton customer={customer} onToggle={onToggle} />
         <RenewButton customer={customer} onRenewed={onToggle} />

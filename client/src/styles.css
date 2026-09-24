@@ -387,6 +387,13 @@ p { margin: 0; }
 .group-card.theme-red   { background: var(--red-bg); border-color: #fecaca; }
 .group-card.theme-neutral { background: var(--surface); }
 
+/* Card merah bila ada customer expired + belum follow up (override semua theme) */
+.group-card.has-expired {
+  background: var(--red-bg);
+  border-color: #f87171;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+}
+
 .group-card .gc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .group-card h3 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; }
 .group-card .gc-desc { color: var(--text-muted); font-size: 13px; margin: 4px 0 14px; min-height: 19px; }
@@ -394,9 +401,10 @@ p { margin: 0; }
 .group-card .gc-count { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
 .group-card .gc-count span { color: var(--text-muted); font-weight: 500; }
 
-.group-card .gc-stats { display: flex; gap: 12px; font-size: 13px; margin-bottom: 16px; }
+.group-card .gc-stats { display: flex; flex-direction: column; gap: 6px; font-size: 13px; margin-bottom: 16px; }
 .group-card .gc-stats .ok { color: var(--green); font-weight: 600; }
 .group-card .gc-stats .no { color: var(--red); font-weight: 600; }
+.group-card .gc-stats .exp { color: var(--orange); font-weight: 600; }
 
 .group-card .gc-actions { display: flex; gap: 8px; }
 .group-card .gc-actions .btn { flex: 1; justify-content: center; }

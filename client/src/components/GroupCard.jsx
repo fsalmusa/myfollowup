@@ -7,9 +7,10 @@ export default function GroupCard({ group, onEdit, onDelete }) {
   const theme = `theme-${group.color || 'neutral'}`;
   const isRed = group.color === 'red';
   const isGreen = group.color === 'green';
+  const hasExpired = (group.expired_pending ?? 0) > 0;
 
   return (
-    <div className={`group-card ${theme}`}>
+    <div className={`group-card ${theme}${hasExpired ? ' has-expired' : ''}`}>
       <div className="gc-menu">
         <Dropdown
           items={[
@@ -31,6 +32,7 @@ export default function GroupCard({ group, onEdit, onDelete }) {
       <div className="gc-stats">
         <span className="ok">🟢 {group.completed} Dah Follow Up</span>
         <span className="no">🔴 {group.pending} Belum Follow Up</span>
+        <span className="exp">⏰ {group.expired_pending ?? 0} Expired (Belum Follow Up)</span>
       </div>
 
       <div style={{ marginBottom: 12 }}>

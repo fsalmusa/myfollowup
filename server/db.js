@@ -73,19 +73,24 @@ CREATE INDEX IF NOT EXISTS idx_history_customer     ON follow_up_history(custome
  * This is the single source of truth for group status / colours.
  */
 export function groupStats(groupId) {
+  const today = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  const todayStr = `${today.getFullYear()}-${p(today.getMonth() + 1)}-${p(today.getDate())}`;
   const row = db
     .prepare(
       `SELECT
          COUNT(*)                                      AS total_customers,
          SUM(CASE WHEN follow_up_status='COMPLETED' THEN 1 ELSE 0 END) AS completed,
-         SUM(CASE WHEN follow_up_status='PENDING'   THEN 1 ELSE 0 END) AS pending
+         SUM(CASE WHEN follow_up_status='PENDING'   THEN 1 ELSE 0 END) AS pending,
+         SUM(CASE WHEN follow_up_status='PENDING' AND expiry_date != '' AND expiry_date < ? THEN 1 ELSE 0 END) AS expired_pending
        FROM customers WHERE group_id = ?`
     )
-    .get(groupId);
+    .get(todayStr, groupId);
   const total = row.total_customers || 0;
   const completed = row.completed || 0;
   const pending = row.pending || 0;
-  return { total_customers: total, completed, pending };
+  const expired_pending = row.expired_pending || 0;
+  return { total_customers: total, completed, pending, expired_pending };
 }
 
 /** Derive group status + colour key from customer counts (never stored). */
@@ -97,7 +102,7 @@ export function deriveGroupStatus(total, pending) {
 
 /** Shape a group row into its public JSON form with live stats. */
 export function shapeGroup(row) {
-  const { total_customers, completed, pending } = groupStats(row.id);
+  const { total_customers, completed, pending, expired_pending } = groupStats(row.id);
   const { status, color } = deriveGroupStatus(total_customers, pending);
   return {
     id: row.id,
@@ -108,6 +113,7 @@ export function shapeGroup(row) {
     total_customers,
     completed,
     pending,
+    expired_pending,
     status,
     color,
   };

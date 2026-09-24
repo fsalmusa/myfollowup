@@ -15,6 +15,23 @@ export default function CustomerForm({ initial, groups, onCancel, onSubmit, subm
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Auto-set tarikh expired = +1 bulan dari tarikh subscribe (boleh edit manual)
+  const handleSubscribeChange = (e) => {
+    const subDisplay = e.target.value;
+    setForm((f) => {
+      const subISO = displayToISO(subDisplay);
+      let expDisplay = f.expiry_date;
+      if (subISO) {
+        const m = subISO.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        d.setMonth(d.getMonth() + 1);
+        const p = (n) => String(n).padStart(2, '0');
+        expDisplay = `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+      }
+      return { ...f, subscribe_date: subDisplay, expiry_date: expDisplay };
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
@@ -103,7 +120,7 @@ export default function CustomerForm({ initial, groups, onCancel, onSubmit, subm
           <input
             className="form-control"
             value={form.subscribe_date}
-            onChange={set('subscribe_date')}
+            onChange={handleSubscribeChange}
             placeholder="DD/MM/YYYY"
           />
         </div>
@@ -117,7 +134,7 @@ export default function CustomerForm({ initial, groups, onCancel, onSubmit, subm
           />
         </div>
       </div>
-      <div className="form-hint">Format tarikh: DD/MM/YYYY (cth: 22/09/2026)</div>
+      <div className="form-hint">Format tarikh: DD/MM/YYYY — tarikh expired auto +1 bulan dari tarikh subscribe, boleh ubah manual.</div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
         <button type="button" className="btn btn-outline" onClick={onCancel}>
